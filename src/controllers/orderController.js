@@ -121,7 +121,7 @@ const updateOrder = async function (req, res) {
         }
 
         if (OrderExists.userId != userId) {
-            console.log(isOrderExists.userId !== userId)
+        
             return res.status(400).send({ status: false, message: "order user id and params user id not match" })
         }
         if (status == "cancled") {

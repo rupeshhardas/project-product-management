@@ -41,6 +41,21 @@ const createCart = async function (req, res) {
             if (userId == findingcartAlreadyExist.userId) {
                 const findingCart = await cartModel.findById(cartId)
 
+                for (let i = 0; i < findingCart.items.length; i++) {
+
+                    if (productId == findingCart.items[i].productId) {
+    
+                        const totalPrice = findingCart.totalPrice + (findingProduct.price * data.quantity)
+    
+                        findingCart.items[i].quantity = findingCart.items[i].quantity + data.quantity
+    
+                        const newCart = await cartModel.findOneAndUpdate({ userId: userId }, { items: findingCart.items, totalPrice: totalPrice }, { new: true })
+    
+                        return res.status(201).send({ status: true, message: 'product added in cart', data: newCart })
+    
+                    }
+                }
+
                 totalPrice = findingProduct.price * quantity + findingCart.totalPrice
 
                 totalItems = findingCart.totalItems + 1

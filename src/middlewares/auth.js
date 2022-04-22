@@ -8,7 +8,7 @@ const userAuth = async (req, res, next) => {
         }
         let splitToken = token.split(' ')
 
-        const decodedtoken = jwt.decode(splitToken[1], 'group7-Project5')
+        const decodedtoken = jwt.decode(splitToken[1], 'Products-Management')
 
         if (!decodedtoken) {
            return res.status(403).send({ status: false, message: `invalid authenticated token in request body` })

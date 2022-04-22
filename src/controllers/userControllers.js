@@ -15,7 +15,7 @@ const registerUser = async function (req, res) {
         if (Object.keys(req.body) == 0) {
             return res.status(400).send({ status: false, msg: "data is missing" })
         }
-       
+
         let { fname, lname, email, phone, password, address } = data
 
         const req0 = validator.isValid(fname)
@@ -34,13 +34,13 @@ const registerUser = async function (req, res) {
         const findemail = await userModel.findOne({ email: email })
         if (findemail) { return res.status(200).send({ status: false, mgs: "email already exist" }) }
 
-        if (files && files.length > 0) {  
+        if (files && files.length > 0) {
             data['profileImage'] = await aws.uploadFile(files[0])
-        }else{
+        } else {
             return res.status(400).send({ status: false, message: "please provide profile pic " })
         }
-        
-        
+
+
 
         const req4 = validator.isValid(phone)
         if (!req4) { return res.status(400).send("phone is required") }
@@ -87,7 +87,7 @@ const registerUser = async function (req, res) {
         if (!validator.isValid(address.billing.pincode)) {
             return res.status(400).send({ status: false, msg: "pincode2 is required" })
         }
-    
+
         const createuser = await userModel.create(data)
         res.status(201).send({ status: true, msg: "User created successfully", data: createuser })
 
@@ -274,18 +274,74 @@ const updateUser = async (req, res) => {
         }
 
         //Address validation ->
-        if (validator.isValid(address)) {
-            if (address.shipping.pincode) {
-                if (!validator.isValidNumber(address.shipping.pincode)) {
-                    return res.status(400).send({ status: false, mesaage: "shipping pincode must be number" })
-                }
-            }
-            if (address.billing.pincode) {
-                if (!validator.isValidNumber(address.billing.pincode)) {
-                    return res.status(400).send({ status: false, mesaage: "billing pincode must be number" })
-                }
+       
+        let parseBody = JSON.parse(JSON.stringify(requestBody))
+        console.log(parseBody)
+        if (parseBody.address == 0) {
+            return res.status(400).send({ status: false, message: 'Please add shipping or billing address to update' })
+        }
+        if (address) {
+            let jsonAddress = JSON.parse(JSON.stringify(address))
+            if (!(Object.keys(jsonAddress).includes('shipping') || Object.keys(jsonAddress).includes('billing'))) {
+                return res.status(400).send({ status: false, message: 'Please add shipping or billing address to update' })
             }
 
+            let { shipping, billing } = parseBody.address
+            if (shipping == 0) {
+                return res.status(400).send({ status: false, message: 'Please add street, city or pincode to update for shipping' })
+            }
+            if (shipping) {
+                if (!(Object.keys(shipping).includes('street') || Object.keys(shipping).includes('city') || Object.keys(shipping).includes('pincode'))) {
+                    return res.status(400).send({ status: false, message: 'Please add street, city or pincode for shipping to update' })
+                }
+
+                if (shipping.street == 0) {
+                    return res.status(400).send({ status: false, message: `Please provide shipping address's Street` })
+                }
+
+                if (shipping.city == 0) {
+                    return res.status(400).send({ status: false, message: `Please provide shipping address's city` })
+                }
+
+                if (shipping.pincode == 0) {
+                    return res.status(400).send({ status: false, message: `Please provide shipping address's pincode` })
+                }
+                if (shipping.pincode) {
+                    if (!(/^[1-9][0-9]{5}$/.test(shipping.pincode))) {
+                        return res.status(400).send({ status: false, message: 'Pleasee provide a valid pincode to update' })
+                    }
+                }
+                var shippingStreet = shipping.street
+                var shippingCity = shipping.city
+                var shippingPincode = shipping.pincode
+            }
+
+            if (billing == 0) {
+                return res.status(400).send({ status: false, message: 'Please add street, city or pincode to update for billing' })
+            }
+            if (billing) {
+                if (!(Object.keys(billing).includes('street') || Object.keys(billing).includes('city') || Object.keys(billing).includes('pincode'))) {
+                    return res.status(400).send({ status: false, message: 'Please add street, city or pincode for billing to update' })
+                }
+
+                if (billing.street == 0) {
+                    return res.status(400).send({ status: false, message: `Please provide billing address's Street` })
+                }
+                if (billing.city == 0) {
+                    return res.status(400).send({ status: false, message: `Please provide billing address's city` })
+                }
+                if (billing.pincode == 0) {
+                    return res.status(400).send({ status: false, message: `Please provide billing address's pincode` })
+                }
+                if (billing.pincode) {
+                    if (!(/^[1-9][0-9]{5}$/.test(billing.pincode))) {
+                        return res.status(400).send({ status: false, message: 'Pleasee provide a valid pincode to update' })
+                    }
+                }
+                var billingStreet = billing.street
+                var billingCity = billing.city
+                var billingPincode = billing.pincode
+            }
         }
 
 
@@ -305,10 +361,15 @@ const updateUser = async (req, res) => {
 
         //object destructuring for response body.
         let changeProfileDetails = await userModel.findOneAndUpdate({ _id: userId }, {
-            $set: {
+             
                 fname: fname, lname: lname, email: email, profileImage: updatedProfileImage, phone: phone, password: encryptedPassword,
-                address: address
-            }
+                'address.shipping.street': shippingStreet,
+                'address.shipping.city': shippingCity,
+                'address.shipping.pincode': shippingPincode,
+                'address.billing.street': billingStreet,
+                'address.billing.city': billingCity,
+                'address.billing.pincode': billingPincode
+            
         }, { new: true })
 
         return res.status(200).send({ status: true, data: changeProfileDetails })

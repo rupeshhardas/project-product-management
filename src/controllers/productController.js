@@ -3,6 +3,7 @@ const userModel = require("../models/productModel")
 const aws = require("../aws")
 const validator = require("../utils/validator")
 
+
 const createProduct = async function (req, res) {
     try {
         files = req.files
@@ -34,11 +35,13 @@ const createProduct = async function (req, res) {
         if (!validator.isValid(currencyId)) {
             return res.status(400).send({ status: false, msg: "curruncyId is required" })
         }
+        if (currencyId != 'INR') {
+            return res.status(400).send({ status: false, message: 'currencyId should be INR' })
+        }
 
         if (!validator.isValid(currencyFormat)) {
             return res.status(400).send({ status: false, msg: "currencyFormat is required" })
         }
-
 
 
         if (!validator.isValid(availableSizes)) {
@@ -71,11 +74,11 @@ const createProduct = async function (req, res) {
 
 const getProductsBYFilter = async function (req, res) {
     try {
-        const priceSort = req.body.priceSort
+        
 
         const requestQuery = req.query
-
-        const { size, name, priceGreaterThan, priceLessThan } = requestQuery
+          console.log(requestQuery.priceSort)
+        const { size, name, priceGreaterThan, priceLessThan,priceSort } = requestQuery
 
         const finalData = [{ isDeleted: false }]
 
@@ -102,7 +105,7 @@ const getProductsBYFilter = async function (req, res) {
         // if there is a price to sort 
         if (validator.isValidNumber(priceSort)) {
 
-            if (priceSort != 1 || priceSort != -1) {
+            if (priceSort != 1 && priceSort != -1) {
                 return res.status(400).send({ status: false, message: "pricesort must to 1 or -1" })
             }
             const fillteredSort = await productModel.find({ $and: finalData }).sort({ price: priceSort })
