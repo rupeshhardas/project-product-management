@@ -137,7 +137,7 @@ const userLogin = async function (req, res) {
                 'Products-Management')
             // {expiresIn:"60m"})
 
-            res.setHeader("x-api-key", token);
+            res.setHeader("Authorization", token);
             res.status(200).send({ status: true, message: 'Success', userId: emailExist._id, Token: token });
         } else {
             return res.status(404).send({ status: false, message: `${password} not valid` })
