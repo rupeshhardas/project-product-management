@@ -165,7 +165,7 @@ const getauseradetails = async function (req, res) {
         const findUser = await userModel.findById(userid)
         if (!findUser) return res.status(404).send({ status: false, msg: "user deatils not found" })
 
-        res.status(200).send({ status: true, msg: "user Profile details details ", data: findUser })
+        res.status(200).send({ status: true, msg: "user Profile details  ", data: findUser })
     }
     catch (error) {
         return res.status(500).send({ status: false, error: error.message })
@@ -185,7 +185,7 @@ const updateUser = async (req, res) => {
         const userId = req.params.userId
 
         if (!validator.isValidRequestBody(requestBody)) {
-            return res.status(400).send({ status: false, mesaage: "invalid body" })
+            return res.status(400).send({ status: false, message: "invalid body" })
         }
         const { fname, lname, email, phone, password, address } = requestBody                           //distructing the requestBody
 

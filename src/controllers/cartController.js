@@ -1,4 +1,4 @@
-const { findOne, findOneAndDelete } = require("../models/cartModel")
+
 const cartModel = require("../models/cartModel")
 const productModel = require("../models/productModel")
 const userModel = require("../models/userModel")
@@ -11,7 +11,7 @@ const createCart = async function (req, res) {
 
         if (!validator.isValidRequestBody(data)) {
             return res.status(400).send({
-                status: false, message: "Invalid request parameters. Please provide user's details to update."
+                status: false, message: "prese provide data for upadate cart or create cart."
             })
         }
 
@@ -89,7 +89,7 @@ const createCart = async function (req, res) {
                 }
 
                 const cartAdd = await cartModel.create(createNewCart)
-                res.status(201).send({ status: true, msg: "cart created succesfully", data: cartAdd })
+                res.status(200).send({ status: true, msg: "cart created succesfully", data: cartAdd })
             } else {
                 return res.status(400).send({ status: false, message: 'params user id and body user id not match' })
             }

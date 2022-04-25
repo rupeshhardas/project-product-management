@@ -1,5 +1,5 @@
 const productModel = require("../models/productModel")
-const userModel = require("../models/productModel")
+
 const aws = require("../aws")
 const validator = require("../utils/validator")
 
@@ -184,7 +184,7 @@ const updateProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "Bad request please provoide valid title" })
             }
 
-            const findTitle = await productId.findOne({ title: title })
+            const findTitle = await productModel.findOne({ title: title })
             if (findTitle) { return res.status(400).send({ status: false, msg: "title is already exist" }) }
 
 
@@ -228,7 +228,7 @@ const updateProduct = async function (req, res) {
         //installment validation
 
         if (installments) {
-            if (!validator.isValid(installments)) {
+            if (!validator.isValidNumber(installments)) {
                 return res.status(400).send({ status: false, message: "Bad request please provoide valid installments number" })
             }
 

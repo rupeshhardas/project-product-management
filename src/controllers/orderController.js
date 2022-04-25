@@ -11,7 +11,7 @@ const createOrder = async function (req, res) {
 
         if (!validator.isValidRequestBody(requestBody)) {
             return res.status(400).send({
-                status: false, message: "Invalid request parameters. Please provide user's details to update."
+                status: false, message: "please provide data to create order."
             })
         }
 
@@ -85,7 +85,7 @@ const updateOrder = async function (req, res) {
 
         if (!validator.isValidRequestBody(requestBody)) {
             return res.status(400).send({
-                status: false, message: "Invalid request parameters. Please provide user's details to update."
+                status: false, message: "Invalid request parameters. Please provide orders details to update."
             })
         }
 
@@ -125,9 +125,9 @@ const updateOrder = async function (req, res) {
             return res.status(400).send({ status: false, message: "order user id and params user id not match" })
         }
         if (status == "cancled") {
-            const updatedData = await orderModel.findOneAndUpdate({ _id: orderId, cancellable: true }, { status: requestBody.status, isDeleted: true }, { new: true })
+            const updatedData = await orderModel.findOneAndUpdate({ _id: orderId, cancellable: true,isDeleted:false }, { status: requestBody.status, isDeleted: true }, { new: true })
             if (!updatedData) {
-                return res.status(404).send({ status: false, message: "data not found for update" })
+                return res.status(404).send({ status: false, message: "data not found for update or document is deleted" })
             }
 
             return res.status(200).send({ status: true, message: `order ${req.body.status} successfully`, data: updatedData })
